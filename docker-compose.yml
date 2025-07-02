@@ -1,0 +1,40 @@
+# A linha 'version' não é mais necessária, pode ser removida.
+services:
+  app:
+    build: . # Contruir imagem Docker a partir do Dockerfile
+    container_name: biblioteca-virtual # Nome container
+    ports:
+      - "8080:8080"
+    volumes: # Logs no diretório do WildFly
+      - ./logs:/opt/jboss/wildfly/standalone/log
+    environment:
+      # Passando as variáveis que o código Java irá procurar
+      DB_HOST: db # Nome do serviço do banco de dados do Docker Compose
+      DB_NAME: bibliotecaVirtual
+      DB_USER: postgres
+      DB_PASS: "1234"
+    depends_on:
+      - db # Será iniciado primeiro
+    networks:
+      - app-network # Permite conexão com outros containers da mesma rede
+
+  db:
+    image: postgres:16 #Imagem oficial Postgres
+    container_name: db_postgres
+    environment:
+      POSTGRES_DB: bibliotecaVirtual
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "1234"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data # Garante que os dados não sejam perdidos ao recriar o container
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql # Monta script que será eecutado na 1° inicialização, populando o BD
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network # Conecta db a app-network permitindo conexão com outros containers da mesma rede
+
+volumes:
+  postgres-data:
+
+networks:
+  app-network:
