@@ -6,7 +6,7 @@ FROM maven:3.9-eclipse-temurin-21 AS build
 WORKDIR /app
 
 # Copia o repositório do GitHub
-COPY . .
+RUN git clone https://github.com/JuJaeger06/BibliotecaVirtualDocker.git .
 
 # Executa o comando Maven para limpar, compilar e empacotar a aplicação.
 RUN mvn clean package -DskipTests
